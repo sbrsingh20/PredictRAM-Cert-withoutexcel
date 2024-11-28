@@ -7,19 +7,11 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import Paragraph
 
-# Load candidates
-candidates_file = 'candidates.xlsx'  # Update this path as necessary
-candidates_df = pd.read_excel(candidates_file)
-
-# Check for leading/trailing spaces in column names
-candidates_df.columns = candidates_df.columns.str.strip()
-
 # Function to generate certificate
 def generate_certificate(name, start_date, end_date, issue_date):
     pdf_file = f"Internship_Certificate_{name}.pdf"
     c = canvas.Canvas(pdf_file, pagesize=letter)
     width, height = letter
-
 
     # Add logos at the top center
     c.drawImage('Certificate Batch Untitled.png', 450, height - 100, 65, 50)  # Adjust the path and size as necessary
@@ -127,21 +119,18 @@ with st.form("internship_form"):
     issue_date = st.date_input("Issue Date")
     submit_button = st.form_submit_button(label="Generate Certificate")
 
-# Check if the candidate is in the list
+# Generate PDF certificate without checking the candidate list
 if submit_button:
-    if 'Candidate Name' in candidates_df.columns:
-        if name in candidates_df['Candidate Name'].values:
-            # Generate PDF Certificate
-            pdf_file = generate_certificate(name, start_date, end_date, issue_date)
-            
-            with open(pdf_file, "rb") as file:
-                st.download_button(
-                    label="Download Certificate",
-                    data=file,
-                    file_name=pdf_file,
-                    mime="application/pdf"
-                )
-        else:
-            st.error("Candidate not found in the list.")
+    if name:  # Make sure name is not empty
+        # Generate PDF Certificate
+        pdf_file = generate_certificate(name, start_date, end_date, issue_date)
+        
+        with open(pdf_file, "rb") as file:
+            st.download_button(
+                label="Download Certificate",
+                data=file,
+                file_name=pdf_file,
+                mime="application/pdf"
+            )
     else:
-        st.error("'Candidate Name' column not found in the candidates file.")
+        st.error("Please enter a valid candidate name.")
